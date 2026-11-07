@@ -39,7 +39,8 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - [x] Criar o script de preparação do banco (`backend/scripts/db-setup.js`, comando `npm run db:setup`)
 - [x] Executar o `npm run db:setup` e confirmar o resultado (PowerShell: usuários, banco, permissões e logins ok)
 - [x] Documentar o script (seção "Banco de dados" em `backend/README.md`, com ligação no `README.md` da raiz)
-- [ ] Primeiro commit e push
+- [x] Primeiro commit (`11ebe4d`, 44 arquivos, autor `t.borges@live.com`)
+- [x] Push do primeiro commit (`c33c2cf..11ebe4d` em `main`, conta `ThBorgesSilveira`)
 
 ### 3. Conexão com o banco
 - [x] Criar o `backend/.env.example` (conexão da aplicação e conexão das migrations)
@@ -80,8 +81,10 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - [x] `psql` fora do PATH do Git Bash → usado o caminho completo (PostgreSQL 18)
 - [x] Fim de linha (CRLF × LF) em `.gitignore` e `README.md` → `.gitattributes` na raiz com `* text=auto eol=lf`
 - [x] Trava `.git/index.lock` deixada por um `git add -n` → renomeada para `.git/stale-index-lock` (pode ser apagada)
+- [x] Identidade automática do Git no primeiro commit → nome e e-mail pessoais configurados só neste repositório (conta `ThBorgesSilveira`) e commit refeito antes do push
+- [x] `npm audit` no backend (25 vulnerabilidades, 2 altas) → removido `@nestjs/mau` e o script `deploy`; `npm audit fix` sem `--force` aplicado; sobram 20 (16 moderadas, 4 baixas) no Jest, `glob`, `minimatch` e `deepmerge`. Risco aceito: são só dependências de desenvolvimento e `npm audit --omit=dev` mostra 0. Nunca usar `--force` (downgrade do Jest para a v25)
+- [x] Aviso de `install-scripts` do npm → `@parcel/watcher` negado (`allowScripts` no `backend/package.json`); `npm run start:dev` confirmado; o `esbuild` saiu com o `@nestjs/mau`
 
 ## Ramificações abertas
 
-- [ ] `npm audit` mostra vulnerabilidades no backend → revisar depois
-- [ ] Aviso de `install-scripts` do npm (`@parcel/watcher`, `esbuild`) → revisar depois
+- [ ] Revisar o `npm audit` do backend quando sair uma versão nova do Jest (restam 20 vulnerabilidades moderadas e baixas, só nas ferramentas de teste)
