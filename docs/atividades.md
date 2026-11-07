@@ -11,12 +11,16 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - Backend: NestJS + TypeORM + PostgreSQL (TypeScript).
 - Frontend: React + Vite (TypeScript).
 - Um repositório (monorepo) com as pastas `backend/` e `frontend/`.
-- Branches: `main` estável e uma branch curta por funcionalidade (`feat/...`, `fix/...`).
+- Branches: `main` estável e uma branch curta por mudança, só com os prefixos `feat/` e `fix/`. A branch `chore/limpeza-dependencias` foi uma exceção, já encerrada.
 - PostgreSQL: instalação do Windows, `localhost:5432` (sem Docker).
 - Banco `minierp` com dois usuários: `minierp_owner` (dono, roda as migrations) e `minierp_app` (backend, só `SELECT/INSERT/UPDATE/DELETE`). Sem superusuário, sem criar bancos ou usuários, acesso público revogado.
 - Senhas só no `.env`. Nunca no chat nem no Git.
 - Criação do banco, dos usuários e das permissões por script (`npm run db:setup`), sem executar SQL à mão. Motivo: continuar o desenvolvimento em outro PC. Sem Docker.
 - Tabelas por migrations geradas pelo TypeORM (`synchronize` desligado). As migrations rodam com `minierp_owner`.
+- Negócio: o kit é sortido, com composição livre a cada venda (sem receita fixa).
+- Estoque: só dos produtos comprados. A venda baixa os itens do kit. O kit não tem estoque.
+- Custos indiretos: embalagem e material de montagem, frete de compra, taxas de plataforma e pagamento, despesas fixas mensais.
+- Vendas em vários canais, cada um com taxas diferentes.
 
 ## Trilha principal
 
@@ -52,8 +56,11 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - [ ] Documentar as migrations no `backend/README.md` (depois da primeira migration)
 
 ### 4. Modelo de dados
-- [ ] Definir as entidades e as relações
-- [ ] Registrar o modelo em `docs/`
+- [x] Levantar as regras do negócio (kit, estoque, custos indiretos, canais)
+- [~] Definir as entidades e as relações (proposta em `docs/modelo-de-dados.md`, aguardando confirmação)
+- [ ] Decidir o rateio das despesas fixas mensais
+- [ ] Decidir o idioma dos nomes das tabelas e campos
+- [~] Registrar o modelo em `docs/` (rascunho criado; atualizar depois da confirmação)
 
 ### 5. Módulos do backend
 - [ ] Produtos
