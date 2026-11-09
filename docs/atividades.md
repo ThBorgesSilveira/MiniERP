@@ -17,10 +17,10 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - Senhas só no `.env`. Nunca no chat nem no Git.
 - Criação do banco, dos usuários e das permissões por script (`npm run db:setup`), sem executar SQL à mão. Motivo: continuar o desenvolvimento em outro PC. Sem Docker.
 - Tabelas por migrations geradas pelo TypeORM (`synchronize` desligado). As migrations rodam com `minierp_owner`.
-- Negócio: o kit é sortido, com composição livre a cada venda (sem receita fixa).
-- Estoque: só dos produtos comprados. A venda baixa os itens do kit. O kit não tem estoque.
-- Custos indiretos: embalagem e material de montagem, frete de compra, taxas de plataforma e pagamento, despesas fixas mensais.
-- Vendas em vários canais, cada um com taxas diferentes.
+- Nomes de tabelas e campos em inglês, com tabelas no plural. As telas ficam em português.
+- Regras de negócio: ver `docs/modelo-de-dados.md`.
+- Diagrama do modelo em `docs/minierp-modelo-de-dados.mermaid`. Ele deriva do modelo: atualizar os dois juntos.
+- O planejamento fecha em um commit só de `docs/`, antes da primeira entidade. O código começa depois, em uma branch própria. Motivo: não misturar contextos em um commit grande.
 
 ## Trilha principal
 
@@ -56,25 +56,57 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - [ ] Documentar as migrations no `backend/README.md` (depois da primeira migration)
 
 ### 4. Modelo de dados
+
+#### Revisão do modelo
 - [x] Levantar as regras do negócio (kit, estoque, custos indiretos, canais)
-- [~] Definir as entidades e as relações (proposta em `docs/modelo-de-dados.md`, aguardando confirmação)
-- [ ] Decidir o rateio das despesas fixas mensais
-- [ ] Decidir o idioma dos nomes das tabelas e campos
-- [~] Registrar o modelo em `docs/` (rascunho criado; atualizar depois da confirmação)
+- [x] Registrar o modelo genérico em `docs/modelo-de-dados.md`
+- [x] Planejar o movimento de estoque e o movimento de lote
+- [x] Definir as entidades e as relações
+  - [x] Revisar o bloco 1: cadastros
+  - [x] Revisar o bloco 2: compras, lotes e estoque
+  - [x] Revisar o bloco 3: vendas
+  - [x] Revisar o bloco 4: custos, preço e relatórios
+
+#### Decisões
+- [x] Decidir o rateio das despesas (regra no modelo)
+- [x] Decidir a margem alvo do canal (fora do modelo)
+- [x] Decidir o idioma dos nomes das tabelas e campos (inglês, tabelas no plural)
+- [x] Definir o tipo do produto composto (regra no modelo)
+- [x] Definir a auditoria dos registros e a tabela de usuários (regra no modelo)
+- [x] Definir a tabela de dicionário dos campos (regra no modelo)
+- [x] Definir as regras de cobrança de cada canal (regras no modelo; mensalidade como despesa)
+- [x] Definir os tipos de kit (cada tipo é um produto composto; regra no modelo)
+- [x] Definir o cancelamento de vendas (não existe; devolução entra como compra normal)
+- [x] Definir a edição de vendas (regra no modelo)
+- [x] Aprovar o glossário português → inglês dos nomes do modelo (glossário no modelo)
 
 ### 5. Módulos do backend
-- [ ] Produtos
-- [ ] Estoque
-- [ ] Compras
-- [ ] Custos (direto e indireto)
-- [ ] Preço
-- [ ] Clientes
-- [ ] Vendas
-- [ ] Relatórios
+- [x] Revisar a lista de módulos e definir a ordem (lista e ordem confirmadas abaixo)
+- [ ] Criar as 19 entidades TypeORM e gerar a primeira migration (antes dos módulos)
+- [ ] Criar as funções e os triggers (log e campos de auditoria) e a revogação de `UPDATE` e `DELETE` em `audit_logs`, `stock_movements` e `batch_movements` em uma migration escrita à mão (o `migration:generate` não gera funções)
+- [x] Definir cada módulo: operações, regras do modelo e validações
+  - [x] Usuários (operações e validações em `docs/modulos-do-backend.md`)
+  - [x] Auditoria (operações e validações em `docs/modulos-do-backend.md`)
+  - [x] Listas (operações e validações em `docs/modulos-do-backend.md`)
+  - [x] Canais de venda (operações e validações em `docs/modulos-do-backend.md`)
+  - [x] Pessoas, no lugar de Fornecedores e Clientes (operações e validações em `docs/modulos-do-backend.md`)
+  - [x] Produtos, com as unidades do produto (operações e validações em `docs/modulos-do-backend.md`)
+  - [x] Preços (operações e validações em `docs/modulos-do-backend.md`)
+  - [x] Estoque (operações e validações em `docs/modulos-do-backend.md`)
+  - [x] Compras (operações e validações em `docs/modulos-do-backend.md`)
+  - [x] Vendas, em três partes
+    - [x] Rascunho da venda (operações e validações em `docs/modulos-do-backend.md`)
+    - [x] Efetivar a venda (operações e validações em `docs/modulos-do-backend.md`)
+    - [x] Devolução (operações e validações em `docs/modulos-do-backend.md`)
+  - [x] Despesas, com o fechamento do mês (operações e validações em `docs/modulos-do-backend.md`)
+  - [x] Relatórios (operações e validações em `docs/modulos-do-backend.md`)
 
 ### 6. Frontend
 - [ ] Definir o layout e a navegação
 - [ ] Telas de cada módulo
+
+### 7. Evoluções futuras
+- [ ] Preço sugerido por fórmula configurável (descrição em `docs/evolucoes.md`)
 
 ## Ramificações resolvidas
 
@@ -91,6 +123,12 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - [x] Identidade automática do Git no primeiro commit → nome e e-mail pessoais configurados só neste repositório (conta `ThBorgesSilveira`) e commit refeito antes do push
 - [x] `npm audit` no backend (25 vulnerabilidades, 2 altas) → removido `@nestjs/mau` e o script `deploy`; `npm audit fix` sem `--force` aplicado; sobram 20 (16 moderadas, 4 baixas) no Jest, `glob`, `minimatch` e `deepmerge`. Risco aceito: são só dependências de desenvolvimento e `npm audit --omit=dev` mostra 0. Nunca usar `--force` (downgrade do Jest para a v25)
 - [x] Aviso de `install-scripts` do npm → `@parcel/watcher` negado (`allowScripts` no `backend/package.json`); `npm run start:dev` confirmado; o `esbuild` saiu com o `@nestjs/mau`
+- [x] O log gravaria o `password_hash` dos usuários → log por função no banco (trigger) que omite o campo; regra no modelo
+- [x] A compra movia o estoque na hora → compra com status pedida ou recebida; a conferência edita os itens e a confirmação do recebimento grava os lotes
+- [x] Fornecedor da compra de devolução → fica vazio; a devolução nasce no módulo Vendas
+- [x] O modelo não dizia se o cliente é obrigatório na venda → obrigatório
+- [x] O que volta ao estoque na devolução → itens simples e componentes dos kits; os materiais não voltam; a compra nasce recebida e sem fornecedor
+- [x] Clientes e Fornecedores em tabelas separadas → unificados na tabela de pessoas, com papel de cliente e papel de fornecedor (19 tabelas)
 
 ## Ramificações abertas
 

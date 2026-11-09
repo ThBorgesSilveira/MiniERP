@@ -1,0 +1,174 @@
+%% MiniERP - modelo de dados atual (19 tabelas). Ver docs/modelo-de-dados.md.
+%% Nao desenhados: campos de auditoria (created_at, created_by, updated_at, updated_by, deleted_at, deleted_by),
+%% a origem de stock_movements (origin_type + origin_id, sem chave estrangeira) e as ligacoes com users e list_items.
+erDiagram
+    products ||--o{ product_units : "tem"
+    products ||--o{ product_prices : "tem preco"
+    sales_channels ||--o{ product_prices : "define"
+    people ||--o{ purchases : "fornece"
+    purchases ||--|{ purchase_items : "tem"
+    products ||--o{ purchase_items : "comprado em"
+    products ||--o{ batches : "tem"
+    products ||--o{ stock_movements : "movimenta"
+    stock_movements ||--|{ batch_movements : "detalha"
+    batches ||--o{ batch_movements : "usado em"
+    people ||--o{ sales : "compra"
+    sales_channels ||--o{ sales : "recebe"
+    sales ||--|{ sale_items : "tem"
+    products ||--o{ sale_items : "vendido em"
+    sale_items ||--o{ sale_item_components : "composto por"
+    products ||--o{ sale_item_components : "componente"
+    sales ||--o{ sale_materials : "usa"
+    products ||--o{ sale_materials : "material"
+    sales ||--o| purchases : "devolvida por"
+
+    products {
+        int id PK
+        text name
+        int base_unit_id FK
+        int category_id FK "optional"
+        bool is_active
+        text type "merchandise or material"
+        bool is_composite
+    }
+    people {
+        int id PK
+        text name
+        bool is_customer
+        bool is_supplier
+    }
+    sales_channels {
+        int id PK
+        text name
+        numeric commission_pct
+        numeric order_fee
+        text fee_base "price or price_plus_freight"
+    }
+    product_units {
+        int id PK
+        int product_id FK
+        int unit_id FK
+        numeric conversion_factor
+    }
+    product_prices {
+        int id PK
+        int product_id FK
+        int sales_channel_id FK
+        numeric price
+    }
+    users {
+        int id PK
+        text name
+        text login
+        text password_hash
+        bool is_active
+    }
+    field_dictionary {
+        int id PK
+        text table_name
+        text field_name "empty on table rows"
+        text description
+    }
+    list_items {
+        int id PK
+        text list_code
+        text description
+        bool is_active
+    }
+    purchases {
+        int id PK
+        int supplier_id FK
+        date purchase_date
+        text status "ordered or received"
+        date received_date "empty while ordered"
+        numeric freight_amount
+        int returned_sale_id FK "only on returns"
+    }
+    purchase_items {
+        int id PK
+        int purchase_id FK
+        int product_id FK
+        int unit_id FK
+        numeric quantity
+        numeric unit_cost
+        numeric allocated_freight
+    }
+    batches {
+        int id PK
+        int product_id FK
+        date entry_date
+        numeric initial_quantity
+        numeric unit_cost
+        numeric unit_freight
+        numeric balance
+    }
+    stock_movements {
+        int id PK
+        int product_id FK
+        date movement_date
+        text direction "in or out"
+        numeric quantity
+        text type
+        text origin_type
+        int origin_id
+        int reason_id FK
+    }
+    batch_movements {
+        int id PK
+        int stock_movement_id FK
+        int batch_id FK
+        text direction "in or out"
+        numeric quantity
+        numeric unit_cost
+        numeric unit_freight
+    }
+    sales {
+        int id PK
+        int customer_id FK
+        int sales_channel_id FK
+        date sale_date
+        text status "draft, completed or returned"
+        numeric customer_freight
+        numeric expense_share
+        numeric commission_amount
+        numeric order_fee_amount
+    }
+    sale_items {
+        int id PK
+        int sale_id FK
+        int product_id FK
+        numeric quantity
+        numeric unit_price
+        numeric unit_cost
+        numeric unit_freight
+    }
+    sale_item_components {
+        int id PK
+        int sale_item_id FK
+        int product_id FK
+        numeric quantity
+    }
+    sale_materials {
+        int id PK
+        int sale_id FK
+        int product_id FK
+        numeric quantity
+        numeric unit_cost
+        numeric unit_freight
+    }
+    expenses {
+        int id PK
+        text description
+        numeric monthly_amount
+        date valid_from
+        date valid_to
+    }
+    audit_logs {
+        int id PK
+        text table_name
+        int record_id
+        text action "update or delete"
+        timestamp changed_at
+        int changed_by
+        jsonb data
+    }
