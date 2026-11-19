@@ -53,6 +53,36 @@ Neste formato, a senha fica no histórico do terminal. Use-o só em ambientes de
 - **Falha de autenticação:** confira a senha do administrador.
 - **ECONNREFUSED:** o PostgreSQL não está em execução, ou o host e a porta do `.env` estão errados.
 
+## Migrations
+
+As tabelas do banco nascem de migrations, na pasta `src/database/migrations`. As migrations rodam com o usuário dono (`DB_OWNER_USER`, no `.env`). A aplicação não altera a estrutura do banco (`synchronize` desligado). Rode o `db:setup` antes da primeira migration.
+
+Depois de cada `git pull`, rode `npm run migration:run`. O comando aplica só as migrations novas.
+
+```bash
+# aplicar as migrations pendentes
+npm run migration:run
+
+# listar as migrations e o estado de cada uma
+npm run migration:show
+
+# desfazer a última migration
+npm run migration:revert
+```
+
+### Criar uma migration
+
+1. Altere as entidades (`*.entity.ts`).
+2. Gere a migration. O TypeORM compara as entidades com o banco e escreve o SQL.
+
+```bash
+npm run migration:generate -- src/database/migrations/NomeDaMigration
+```
+
+3. Revise o arquivo gerado antes de aplicar.
+
+O `migration:generate` não cria funções nem triggers: escreva essas migrations à mão. Nomeie as migrations em inglês, no formato `CreateTables`.
+
 ## Execução
 
 ```bash

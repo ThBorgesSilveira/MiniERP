@@ -36,7 +36,7 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 ### 1. Preparação do ambiente
 - [x] Criar o repositório no GitHub
 - [x] Clonar o repositório na pasta do projeto
-- [x] Instalar o Node.js (v26) e o npm
+- [x] Instalar o Node.js (v26.13.0) e o npm
 - [x] Verificar se o PostgreSQL está instalado no PC
 - [x] Criar os usuários `minierp_owner` e `minierp_app` e o banco `minierp` (Parte 1 do SQL)
 - [x] Aplicar as permissões dentro do banco `minierp` (Parte 2 do SQL)
@@ -62,7 +62,7 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - [x] Testar a conexão (`npm run start:dev`: `TypeOrmCoreModule` iniciou sem erro)
 - [x] Configurar as migrations com `minierp_owner` (`src/database/data-source.ts` e comandos `migration:generate`, `migration:run`, `migration:revert` e `migration:show`)
 - [x] Testar a conexão das migrations com `npm run migration:show` (sem erro, sem migrations)
-- [ ] Documentar as migrations no `backend/README.md` (depois da primeira migration)
+- [x] Documentar as migrations no `backend/README.md` e no `README.md` da raiz
 
 ### 4. Modelo de dados
 
