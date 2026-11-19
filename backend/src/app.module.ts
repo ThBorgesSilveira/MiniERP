@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { SnakeCaseNamingStrategy } from './database/snake-case-naming.strategy';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AppService } from './app.service';
         username: config.get<string>('DB_APP_USER'),
         password: config.get<string>('DB_APP_PASSWORD'),
         autoLoadEntities: true,
+        namingStrategy: new SnakeCaseNamingStrategy(),
         synchronize: false,
       }),
     }),
