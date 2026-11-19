@@ -29,7 +29,7 @@ docs/       Documentação e lista de atividades
 
 ## Requisitos
 
-- Node.js 22.12 ou superior e npm
+- Node.js `^22.22.3`, `^24.15.0` ou `>=26.0.0` e npm (desenvolvido com a versão 26)
 - PostgreSQL (desenvolvido com a versão 18)
 
 ## Configuração
@@ -47,6 +47,13 @@ cd ../frontend && npm install
 ```bash
 cd backend
 npm run db:setup
+```
+
+4. Aplique as migrations. Elas criam as tabelas do banco com o usuário `minierp_owner`. Rode o comando de novo depois de cada `git pull`. Veja os detalhes em [backend/README.md](backend/README.md#migrations).
+
+```bash
+cd backend
+npm run migration:run
 ```
 
 ## Execução
