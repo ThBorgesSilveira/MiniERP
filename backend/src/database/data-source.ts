@@ -1,5 +1,6 @@
 import { join } from 'node:path';
 import { DataSource } from 'typeorm';
+import { SnakeCaseNamingStrategy } from './snake-case-naming.strategy';
 
 // Conexão usada pelo CLI do TypeORM (migrations).
 // Usa o usuário dono do banco, que pode alterar a estrutura.
@@ -10,7 +11,9 @@ const arquivoEnv = join(__dirname, '..', '..', '.env');
 try {
   process.loadEnvFile(arquivoEnv);
 } catch {
-  throw new Error(`Arquivo .env não encontrado em ${arquivoEnv}. Copie o .env.example para .env e preencha.`);
+  throw new Error(
+    `Arquivo .env não encontrado em ${arquivoEnv}. Copie o .env.example para .env e preencha.`,
+  );
 }
 
 export default new DataSource({
@@ -22,5 +25,6 @@ export default new DataSource({
   password: process.env.DB_OWNER_PASSWORD,
   entities: ['src/**/*.entity.ts'],
   migrations: ['src/database/migrations/*.ts'],
+  namingStrategy: new SnakeCaseNamingStrategy(),
   synchronize: false,
 });
