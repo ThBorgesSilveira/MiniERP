@@ -21,6 +21,15 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - Regras de negócio: ver `docs/modelo-de-dados.md`.
 - Diagrama do modelo em `docs/minierp-modelo-de-dados.mermaid`. Ele deriva do modelo: atualizar os dois juntos.
 - O planejamento fecha em um commit só de `docs/`, antes da primeira entidade. O código começa depois, em uma branch própria. Motivo: não misturar contextos em um commit grande.
+- Entidades TypeORM: um arquivo `.entity.ts` por tabela, na pasta do módulo. A entidade `field_dictionary` fica em `src/database/`.
+- Auditoria nas entidades: quatro classes-base, uma por perfil do modelo. `created_at` e `updated_at` usam `default now()`, e o trigger os preenche. `deleted_at` usa `@DeleteDateColumn`. Os campos `_by` são inteiros opcionais com chave estrangeira para `users`, declarada pelo nome da entidade.
+- Chave primária `id` do tipo `identity`. Nomes em snake_case por uma NamingStrategy própria, usada no `data-source.ts` e no `app.module.ts`. Os serviços apagam os filhos.
+- Campos de valores fechados: `varchar` com CHECK. Motivo: o PostgreSQL não remove valor de enum, e o TypeORM recria o tipo quando o enum muda.
+- Campos não inteiros: `numeric(18,6)`. O arredondamento a duas casas das taxas, do rateio e do frete rateado fica nos serviços.
+- Nomes únicos sem diferenciar maiúsculas: tipo `citext` em `users.login`, `people.name`, `sales_channels.name`, `list_items.description` e `products.name`, com índices únicos parciais. A migration `CreateTables` ativa a extensão com `CREATE EXTENSION IF NOT EXISTS citext`, acrescentado à mão.
+- CHECKs e índices no banco para as regras de uma linha. As regras que cruzam tabelas ficam nos serviços.
+- `password_hash` com `select: false`.
+- Nomes de migrations em inglês, no formato `CreateTables`.
 
 ## Trilha principal
 
@@ -82,8 +91,14 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 
 ### 5. Módulos do backend
 - [x] Revisar a lista de módulos e definir a ordem (lista e ordem confirmadas abaixo)
-- [ ] Criar as 19 entidades TypeORM e gerar a primeira migration (antes dos módulos)
+- [x] Criar as 19 entidades TypeORM e gerar a primeira migration (antes dos módulos)
+  - [x] Criar a branch `feat/entidades`
+  - [x] Criar as classes-base de auditoria e a NamingStrategy
+  - [x] Criar as entidades por módulo (19 tabelas, `tsc` sem erro, colunas conferidas com o glossário)
+  - [x] Gerar a migration `CreateTables` e acrescentar o `CREATE EXTENSION` do `citext`
+  - [x] Executar `migration:run` e conferir as 19 tabelas (20 com a tabela `migrations`)
 - [ ] Criar as funções e os triggers (log e campos de auditoria) e a revogação de `UPDATE` e `DELETE` em `audit_logs`, `stock_movements` e `batch_movements` em uma migration escrita à mão (o `migration:generate` não gera funções)
+- [ ] Preencher as linhas do dicionário dos campos (`field_dictionary`)
 - [x] Definir cada módulo: operações, regras do modelo e validações
   - [x] Usuários (operações e validações em `docs/modulos-do-backend.md`)
   - [x] Auditoria (operações e validações em `docs/modulos-do-backend.md`)
