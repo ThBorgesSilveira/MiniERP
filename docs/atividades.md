@@ -152,4 +152,5 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 
 ## Ramificações abertas
 
+- [ ] Criar o atualizador do ambiente local: um comando que executa todos os procedimentos para deixar o ambiente atualizado (desenvolvimento no LOQ, teste no VAIO)
 - [ ] Revisar o `npm audit` do backend quando sair uma versão nova do Jest (restam 20 vulnerabilidades moderadas e baixas, só nas ferramentas de teste)
