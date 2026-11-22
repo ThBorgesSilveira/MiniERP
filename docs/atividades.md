@@ -163,6 +163,6 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
   - [x] Escrever `backend/scripts/atualizar.js` e `atualizar.bat`
   - [x] Documentar no `README.md` da raiz
   - [x] Testar no LOQ (45 s, nove passos ok)
-  - [ ] Testar no VAIO (instalação limpa e atualização)
-  - [ ] Criar a branch `feat/atualizador-ambiente`, o commit e a PR
+  - [x] Testar a atualização no VAIO
+  - [ ] Abrir a PR de `feat/atualizador-ambiente` e fazer o merge
 - [ ] Revisar o `npm audit` do backend quando sair uma versão nova do Jest (restam 20 vulnerabilidades moderadas e baixas, só nas ferramentas de teste)
