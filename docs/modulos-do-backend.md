@@ -116,6 +116,7 @@ Tabelas: `products` e `product_units`.
 - Listar, com busca por nome e filtros de tipo, composto, ativo, unidade-base, categoria e custo ("de" e "até").
 - Buscar um, com as unidades do produto.
 - Criar.
+- Criar com preço e saldo inicial. A operação recebe os dados do produto, o preço em um canal e o saldo inicial (quantidade e custo). O preço e o saldo são opcionais. A operação cria o produto, o preço e o ajuste de entrada com o motivo "Saldo inicial" em uma transação. Se falhar, o sistema não grava nada.
 - Editar.
 - Ativar ou desativar.
 - Excluir.
@@ -135,6 +136,7 @@ Tabelas: `products` e `product_units`.
 - A unidade-base e as unidades do produto vêm da lista `unit` e precisam estar ativas.
 - A categoria, quando informada, vem da lista `product_category` e precisa estar ativa.
 - O fator de conversão é maior que zero.
+- Na criação com preço e saldo inicial, o preço segue as validações do módulo Preços e o saldo segue as validações do módulo Estoque.
 - O filtro de custo segue o cálculo do modelo. Um produto sem lote não aparece quando o filtro de custo está ligado.
 - A unicidade do nome, a reativação, a troca de campos, a exclusão e o uso da unidade em compra seguem as regras do modelo.
 
@@ -227,24 +229,22 @@ O módulo tem três partes: o rascunho, a efetivação e a devolução. Este arq
 
 - Listar vendas, com filtro por cliente, canal, período e status.
 - Buscar uma, com itens, componentes, materiais e totais. No rascunho, a resposta traz o custo, o frete e as taxas como estimativa.
-- Criar o rascunho.
-- Editar o cabeçalho: cliente, canal, data e frete cobrado do cliente.
+- Criar o rascunho. A operação recebe o cabeçalho, os itens, os componentes e os materiais, e grava tudo em uma transação. O cliente é opcional.
+- Salvar o rascunho. A operação substitui o cabeçalho, os itens, os componentes e os materiais do rascunho, em uma transação.
 - Excluir o rascunho.
-- Adicionar, editar e remover item.
-- Definir os componentes de um item composto.
-- Adicionar, editar e remover material.
 - Recalcular preços.
 
 ### Rascunho: validações
 
-- O cliente (uma pessoa com o papel de cliente) e o canal existem e não foram excluídos.
+- O canal existe e não foi excluído.
+- O cliente, quando informado, é uma pessoa com o papel de cliente e não foi excluída.
 - O frete cobrado do cliente é maior ou igual a zero.
 - A quantidade é maior que zero.
 - O preço do item é maior que zero.
 - O item é um produto `merchandise` ativo e tem preço no canal.
 - O material vem de um produto do tipo `material`.
 - O item composto tem pelo menos um componente, e cada componente é uma mercadoria simples.
-- A edição e a exclusão recusam a venda que não está em rascunho.
+- O salvamento e a exclusão recusam a venda que não está em rascunho.
 - O status só muda pelas operações de efetivar e devolver. O rateio das despesas só muda no fechamento do mês.
 - As regras do preço, da troca de canal e da estimativa seguem o modelo.
 
@@ -252,13 +252,14 @@ O módulo tem três partes: o rascunho, a efetivação e a devolução. Este arq
 
 - Conferir o estoque do rascunho. A operação só consulta e mostra, por produto, a quantidade necessária e o saldo.
 - Efetivar a venda.
-- Criar e efetivar a venda. A operação recebe o cabeçalho, os itens, os componentes e os materiais, e usa uma única transação. Se falhar, o sistema não grava nada. A tela mantém os dados e oferece "Salvar como rascunho", que usa a criação do rascunho.
+- Criar e efetivar a venda. A operação recebe os mesmos dados da criação do rascunho e usa uma única transação. Se falhar, o sistema não grava nada.
 
 A efetivação grava os movimentos, os custos reais, as taxas e o status, como o modelo define. Os serviços do módulo Estoque fazem os movimentos e o consumo dos lotes.
 
 ### Efetivação: validações
 
 - A venda está em rascunho e tem pelo menos um item.
+- O cliente está informado.
 - Todo item tem preço, e todo item composto tem componente.
 - O estoque de cada produto cobre a necessidade total da venda.
 - A unidade-base de cada produto está ativa.

@@ -33,6 +33,9 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - Auditoria no banco: uma função de campos por perfil e duas funções de log (genérica e de `users`), todas na migration `CreateAuditTriggers`. O `db:setup` revoga `UPDATE` e `DELETE` do `minierp_app` em `audit_logs`, `stock_movements` e `batch_movements`, quando as tabelas existem.
 - Dicionário dos campos: uma linha por tabela e uma por campo, com `id` e campos de auditoria. As descrições são curtas, em português, sem valores nem exemplos. A migration `PopulateFieldDictionary` grava as linhas. A migration que cria ou remove uma tabela ou um campo ajusta o dicionário. O `npm run db:check-dictionary` grava a comparação com o banco em `backend/logs/check-dictionary.log`, fora do Git.
 - Atualizador do ambiente local: `atualizar.bat` na raiz chama `backend/scripts/atualizar.js`. Passos: conferir Node, npm e Git; `git pull --ff-only`; conferir o `backend/.env`; `npm ci` no backend e no frontend; login do `minierp_owner` (com `db:setup` se falhar); migrations; dicionário dos campos; compilação das duas partes. O resultado fica em `backend/logs/atualizar.log`, fora do Git.
+- Frontend: biblioteca de componentes MUI, com temas próprios (seção "Tema e modo" de `docs/frontend-layout.md`), e roteamento com React Router. A definição do layout e da navegação fica em `docs/frontend-layout.md`. A tela de login entra nos itens de "Telas" do módulo Usuários.
+- Nome do sistema na interface: MAESTRO (marca da barra lateral, tela de login e título da página).
+- Tema visual: o tema vale para toda a instalação e fica no banco, inclusive na tela de login. O modo claro ou escuro é de cada usuário e fica no navegador.
 
 ## Trilha principal
 
@@ -127,8 +130,23 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
   - [x] Relatórios (operações e validações em `docs/modulos-do-backend.md`)
 
 ### 6. Frontend
-- [ ] Definir o layout e a navegação
-- [ ] Telas de cada módulo
+- [~] Definir o layout e a navegação (definição em `docs/frontend-layout.md`, protótipo em `docs/prototipos/layout-navegacao.html`; aguardando confirmação)
+  - [x] Definir o estilo e os temas (Padrão e Fofo, cada um com modo claro e escuro)
+  - [~] Definir as telas de cada módulo, um módulo por vez
+    - [ ] Usuários, com o login
+    - [ ] Auditoria
+    - [ ] Listas
+    - [ ] Canais de venda
+    - [ ] Pessoas
+    - [ ] Produtos
+    - [ ] Preços
+    - [ ] Estoque
+    - [ ] Compras
+    - [x] Vendas
+    - [ ] Despesas, com o fechamento do mês
+    - [ ] Relatórios
+- [ ] Implementar o layout e a navegação (MUI, React Router, menu e rotas)
+- [ ] Telas de cada módulo (a tela de login entra em Usuários)
 
 ### 7. Evoluções futuras
 - [ ] Preço sugerido por fórmula configurável (descrição em `docs/evolucoes.md`)
@@ -151,7 +169,7 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - [x] O log gravaria o `password_hash` dos usuários → log por função no banco (trigger) que omite o campo; regra no modelo
 - [x] A compra movia o estoque na hora → compra com status pedida ou recebida; a conferência edita os itens e a confirmação do recebimento grava os lotes
 - [x] Fornecedor da compra de devolução → fica vazio; a devolução nasce no módulo Vendas
-- [x] O modelo não dizia se o cliente é obrigatório na venda → obrigatório
+- [x] O modelo não dizia se o cliente é obrigatório na venda → obrigatório para efetivar; o rascunho aceita cliente vazio
 - [x] O que volta ao estoque na devolução → itens simples e componentes dos kits; os materiais não voltam; a compra nasce recebida e sem fornecedor
 - [x] Clientes e Fornecedores em tabelas separadas → unificados na tabela de pessoas, com papel de cliente e papel de fornecedor (19 tabelas)
 - [x] Branches obsoletas, locais e remotas → apagadas; restam `main` e `origin/main`
@@ -159,4 +177,7 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 
 ## Ramificações abertas
 
+- [ ] Definir a configuração do tema no backend: onde o banco a guarda, as operações, a consulta aberta para a tela de login e o perfil de auditoria.
+- [ ] Criar a operação "Criar com preço e saldo inicial" no módulo Produtos, usada pelo cadastro rápido de produto da tela de venda (definição em `docs/modulos-do-backend.md`)
+- [ ] Aceitar cliente vazio no rascunho da venda: ajustar `customerId` em `backend/src/sales/sale.entity.ts` e gerar uma migration que remove o `NOT NULL` de `sales.customer_id` (a `CreateTables` já rodou)
 - [ ] Revisar o `npm audit` do backend quando sair uma versão nova do Jest (restam 20 vulnerabilidades moderadas e baixas, só nas ferramentas de teste)

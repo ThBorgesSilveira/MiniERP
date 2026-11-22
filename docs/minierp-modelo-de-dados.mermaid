@@ -12,7 +12,7 @@ erDiagram
     products ||--o{ stock_movements : "movimenta"
     stock_movements ||--|{ batch_movements : "detalha"
     batches ||--o{ batch_movements : "usado em"
-    people ||--o{ sales : "compra"
+    people |o--o{ sales : "compra"
     sales_channels ||--o{ sales : "recebe"
     sales ||--|{ sale_items : "tem"
     products ||--o{ sale_items : "vendido em"
