@@ -31,6 +31,7 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - `password_hash` com `select: false`.
 - Nomes de migrations em inglês, no formato `CreateTables`.
 - Auditoria no banco: uma função de campos por perfil e duas funções de log (genérica e de `users`), todas na migration `CreateAuditTriggers`. O `db:setup` revoga `UPDATE` e `DELETE` do `minierp_app` em `audit_logs`, `stock_movements` e `batch_movements`, quando as tabelas existem.
+- Dicionário dos campos: uma linha por tabela e uma por campo, com `id` e campos de auditoria. As descrições são curtas, em português, sem valores nem exemplos. A migration `PopulateFieldDictionary` grava as linhas. A migration que cria ou remove uma tabela ou um campo ajusta o dicionário. O `npm run db:check-dictionary` grava a comparação com o banco em `backend/logs/check-dictionary.log`, fora do Git.
 
 ## Trilha principal
 
@@ -103,7 +104,10 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
   - [x] Ajustar o `db:setup` para manter a revogação e documentar no `backend/README.md`
   - [x] Executar `migration:run` e conferir triggers, log e permissões (insert, update e exclusão lógica em `list_items` geram os campos e as duas linhas de log; `minierp_app` sem `UPDATE` e `DELETE` nas três tabelas)
   - [x] Executar `npm run db:setup` e confirmar que a revogação continua
-- [ ] Preencher as linhas do dicionário dos campos (`field_dictionary`)
+- [x] Preencher as linhas do dicionário dos campos (`field_dictionary`)
+  - [x] Escrever a migration `PopulateFieldDictionary` (217 linhas: 19 de tabela e 198 de campo, com `id` e campos de auditoria)
+  - [x] Criar o script `db:check-dictionary`, que compara o banco com o dicionário, e documentá-lo no `backend/README.md`
+  - [x] Executar `migration:run` e `npm run db:check-dictionary` (dicionário completo)
 - [x] Definir cada módulo: operações, regras do modelo e validações
   - [x] Usuários (operações e validações em `docs/modulos-do-backend.md`)
   - [x] Auditoria (operações e validações em `docs/modulos-do-backend.md`)
