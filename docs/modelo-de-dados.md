@@ -50,7 +50,7 @@ O negócio vende kits sortidos em vários canais, cada um com taxas diferentes. 
 
 ## Auditoria (bloco aprovado)
 
-- **Campos de auditoria:** `created_at`, `updated_at` e `deleted_at`, mais `created_by`, `updated_by` e `deleted_by`, ligados aos usuários. Cada tabela segue um de quatro perfis. Um trigger preenche `created_at`, `updated_at`, `created_by`, `updated_by` e `deleted_by` a partir de `app.user_id`. O backend não preenche esses campos e só marca `deleted_at`. Sem usuário na sessão, os campos `_by` ficam vazios.
+- **Campos de auditoria:** `created_at`, `updated_at` e `deleted_at`, mais `created_by`, `updated_by` e `deleted_by`, ligados aos usuários. Cada tabela segue um de quatro perfis. Um trigger preenche `created_at`, `updated_at`, `created_by`, `updated_by` e `deleted_by` a partir de `app.user_id`. O backend não preenche esses campos e só marca `deleted_at`. Sem usuário na sessão, os campos `_by` ficam vazios. No `INSERT`, `updated_at` e `updated_by` recebem os valores de `created_at` e `created_by`. O `UPDATE` não altera `created_at` nem `created_by`. Quando `deleted_at` volta a vazio, `deleted_by` também volta a vazio.
 - **Perfil completo** (os seis campos): produtos, pessoas, canais de venda, unidades do produto, preços dos produtos, despesas, listas, usuários, compras e vendas.
 - **Perfil sem exclusão** (só criação e alteração): itens da compra, itens da venda, componentes do item da venda, materiais da venda e lotes. Os itens mudam só junto do pai. Um item removido de um rascunho é apagado de fato, e o log guarda o registro. O lote nunca se apaga, e `updated_at` registra a mudança do saldo.
 - **Perfil só criação** (`created_at` e `created_by`): movimentos de estoque e movimentos de lote. Eles são um livro de registro e nunca mudam.

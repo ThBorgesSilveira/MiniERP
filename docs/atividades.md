@@ -30,6 +30,7 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - CHECKs e índices no banco para as regras de uma linha. As regras que cruzam tabelas ficam nos serviços.
 - `password_hash` com `select: false`.
 - Nomes de migrations em inglês, no formato `CreateTables`.
+- Auditoria no banco: uma função de campos por perfil e duas funções de log (genérica e de `users`), todas na migration `CreateAuditTriggers`. O `db:setup` revoga `UPDATE` e `DELETE` do `minierp_app` em `audit_logs`, `stock_movements` e `batch_movements`, quando as tabelas existem.
 
 ## Trilha principal
 
@@ -97,7 +98,11 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
   - [x] Criar as entidades por módulo (19 tabelas, `tsc` sem erro, colunas conferidas com o glossário)
   - [x] Gerar a migration `CreateTables` e acrescentar o `CREATE EXTENSION` do `citext`
   - [x] Executar `migration:run` e conferir as 19 tabelas (20 com a tabela `migrations`)
-- [ ] Criar as funções e os triggers (log e campos de auditoria) e a revogação de `UPDATE` e `DELETE` em `audit_logs`, `stock_movements` e `batch_movements` em uma migration escrita à mão (o `migration:generate` não gera funções)
+- [x] Criar as funções e os triggers (log e campos de auditoria) e a revogação de `UPDATE` e `DELETE` em `audit_logs`, `stock_movements` e `batch_movements` em uma migration escrita à mão (o `migration:generate` não gera funções)
+  - [x] Escrever a migration `CreateAuditTriggers` (`tsc` sem erro)
+  - [x] Ajustar o `db:setup` para manter a revogação e documentar no `backend/README.md`
+  - [x] Executar `migration:run` e conferir triggers, log e permissões (insert, update e exclusão lógica em `list_items` geram os campos e as duas linhas de log; `minierp_app` sem `UPDATE` e `DELETE` nas três tabelas)
+  - [x] Executar `npm run db:setup` e confirmar que a revogação continua
 - [ ] Preencher as linhas do dicionário dos campos (`field_dictionary`)
 - [x] Definir cada módulo: operações, regras do modelo e validações
   - [x] Usuários (operações e validações em `docs/modulos-do-backend.md`)

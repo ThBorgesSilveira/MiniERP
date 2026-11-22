@@ -83,6 +83,8 @@ npm run migration:generate -- src/database/migrations/NomeDaMigration
 
 O `migration:generate` não cria funções nem triggers: escreva essas migrations à mão. Nomeie as migrations em inglês, no formato `CreateTables`.
 
+A migration `CreateAuditTriggers` revoga `UPDATE` e `DELETE` do usuário da aplicação em `audit_logs`, `stock_movements` e `batch_movements`. O `db:setup` mantém essa revogação.
+
 ## Execução
 
 ```bash

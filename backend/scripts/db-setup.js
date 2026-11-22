@@ -17,6 +17,8 @@ const { Client } = require('pg');
 const ARQUIVO_ENV = path.join(__dirname, '..', '.env');
 const NOME_VALIDO = /^[a-z_][a-z0-9_]*$/;
 const TAMANHO_MINIMO_SENHA = 8;
+// Livros de registro: a aplicação só lê e insere.
+const TABELAS_SO_INSERCAO = ['audit_logs', 'stock_movements', 'batch_movements'];
 
 function carregarEnv() {
   try {
@@ -199,6 +201,13 @@ async function aplicarPermissoes(cliente, cfg) {
   // Objetos que já existem
   await executar(cliente, 'GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO %I', app);
   await executar(cliente, 'GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO %I', app);
+
+  // Os livros de registro perdem UPDATE e DELETE. Antes da migration, as tabelas não existem.
+  for (const tabela of TABELAS_SO_INSERCAO) {
+    if (await existe(cliente, 'SELECT 1 WHERE to_regclass($1) IS NOT NULL', `public.${tabela}`)) {
+      await executar(cliente, 'REVOKE UPDATE, DELETE ON TABLE %I FROM %I', tabela, app);
+    }
+  }
   console.log('  - permissões do schema public aplicadas');
 }
 
