@@ -105,6 +105,15 @@ function atualizarCodigo(resumo) {
   }
 
   const antes = git(['rev-parse', '--short', 'HEAD']);
+
+  // Branch local ainda sem origem: não há o que puxar.
+  const origem = rodar('git', ['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{u}'], RAIZ, true);
+  if (origem.status !== 0) {
+    resumo.commit = git(['log', '-1', '--format=%h %s']);
+    registrar(`  Branch ${branch} sem origem configurada: pull ignorado, em ${antes}`);
+    return;
+  }
+
   const scriptAntes = fs.readFileSync(__filename, 'utf8');
 
   exigir(rodar('git', ['pull', '--ff-only'], RAIZ), '"git pull --ff-only"');
