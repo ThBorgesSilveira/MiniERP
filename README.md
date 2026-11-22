@@ -56,6 +56,16 @@ cd backend
 npm run migration:run
 ```
 
+## Atualizar o ambiente
+
+Depois da primeira configuração, use o atualizador. Ele roda `git pull --ff-only`, o `npm ci` do backend e do frontend, as migrations e a conferência do dicionário. No fim, compila as duas partes. Feche o backend e o frontend antes de rodar.
+
+```bash
+.\atualizar.bat
+```
+
+Use `node backend/scripts/atualizar.js` em qualquer terminal. Se o `backend/.env` não existir, o atualizador cria o arquivo e para para você preencher as senhas. Se o login do `minierp_owner` falhar, ele roda o `db:setup`. O resultado fica em `backend/logs/atualizar.log`.
+
 ## Execução
 
 ```bash
