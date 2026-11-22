@@ -32,6 +32,7 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - Nomes de migrations em inglês, no formato `CreateTables`.
 - Auditoria no banco: uma função de campos por perfil e duas funções de log (genérica e de `users`), todas na migration `CreateAuditTriggers`. O `db:setup` revoga `UPDATE` e `DELETE` do `minierp_app` em `audit_logs`, `stock_movements` e `batch_movements`, quando as tabelas existem.
 - Dicionário dos campos: uma linha por tabela e uma por campo, com `id` e campos de auditoria. As descrições são curtas, em português, sem valores nem exemplos. A migration `PopulateFieldDictionary` grava as linhas. A migration que cria ou remove uma tabela ou um campo ajusta o dicionário. O `npm run db:check-dictionary` grava a comparação com o banco em `backend/logs/check-dictionary.log`, fora do Git.
+- Atualizador do ambiente local: `atualizar.bat` na raiz chama `backend/scripts/atualizar.js`. Passos: conferir Node, npm e Git; `git pull --ff-only`; conferir o `backend/.env`; `npm ci` no backend e no frontend; login do `minierp_owner` (com `db:setup` se falhar); migrations; dicionário dos campos; compilação das duas partes. O resultado fica em `backend/logs/atualizar.log`, fora do Git.
 
 ## Trilha principal
 
@@ -157,5 +158,11 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 
 ## Ramificações abertas
 
-- [ ] Criar o atualizador do ambiente local: um comando que executa todos os procedimentos para deixar o ambiente atualizado (desenvolvimento no LOQ, teste no VAIO)
+- [~] Criar o atualizador do ambiente local: um comando que executa todos os procedimentos para deixar o ambiente atualizado (desenvolvimento no LOQ, teste no VAIO)
+  - [x] Definir o plano e as decisões (regra em Decisões)
+  - [x] Escrever `backend/scripts/atualizar.js` e `atualizar.bat`
+  - [x] Documentar no `README.md` da raiz
+  - [x] Testar no LOQ (45 s, nove passos ok)
+  - [x] Testar a atualização no VAIO
+  - [ ] Abrir a PR de `feat/atualizador-ambiente` e fazer o merge
 - [ ] Revisar o `npm audit` do backend quando sair uma versão nova do Jest (restam 20 vulnerabilidades moderadas e baixas, só nas ferramentas de teste)
