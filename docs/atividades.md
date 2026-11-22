@@ -155,14 +155,8 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - [x] O que volta ao estoque na devolução → itens simples e componentes dos kits; os materiais não voltam; a compra nasce recebida e sem fornecedor
 - [x] Clientes e Fornecedores em tabelas separadas → unificados na tabela de pessoas, com papel de cliente e papel de fornecedor (19 tabelas)
 - [x] Branches obsoletas, locais e remotas → apagadas; restam `main` e `origin/main`
+- [x] Atualizar o ambiente local exigia vários procedimentos manuais → `atualizar.bat` na raiz chama `backend/scripts/atualizar.js` (regra em Decisões; PR #8)
 
 ## Ramificações abertas
 
-- [~] Criar o atualizador do ambiente local: um comando que executa todos os procedimentos para deixar o ambiente atualizado (desenvolvimento no LOQ, teste no VAIO)
-  - [x] Definir o plano e as decisões (regra em Decisões)
-  - [x] Escrever `backend/scripts/atualizar.js` e `atualizar.bat`
-  - [x] Documentar no `README.md` da raiz
-  - [x] Testar no LOQ (45 s, nove passos ok)
-  - [x] Testar a atualização no VAIO
-  - [ ] Abrir a PR de `feat/atualizador-ambiente` e fazer o merge
 - [ ] Revisar o `npm audit` do backend quando sair uma versão nova do Jest (restam 20 vulnerabilidades moderadas e baixas, só nas ferramentas de teste)
