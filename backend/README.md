@@ -85,6 +85,18 @@ O `migration:generate` não cria funções nem triggers: escreva essas migration
 
 A migration `CreateAuditTriggers` revoga `UPDATE` e `DELETE` do usuário da aplicação em `audit_logs`, `stock_movements` e `batch_movements`. O `db:setup` mantém essa revogação.
 
+## Dicionário dos campos
+
+Cada tabela e cada campo do banco tem uma linha na tabela `field_dictionary`. O dicionário só muda por migration: a migration que cria ou remove uma tabela ou um campo ajusta as linhas dele.
+
+O comando abaixo compara o banco com o dicionário. Ele usa o usuário dono (`DB_OWNER_USER`) e grava o resultado em `backend/logs/check-dictionary.log`, fora do Git.
+
+```bash
+npm run db:check-dictionary
+```
+
+O resultado é "Dicionário completo." ou a lista dos itens que faltam ou sobram no dicionário.
+
 ## Execução
 
 ```bash
