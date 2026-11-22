@@ -153,9 +153,9 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - [x] O modelo não dizia se o cliente é obrigatório na venda → obrigatório
 - [x] O que volta ao estoque na devolução → itens simples e componentes dos kits; os materiais não voltam; a compra nasce recebida e sem fornecedor
 - [x] Clientes e Fornecedores em tabelas separadas → unificados na tabela de pessoas, com papel de cliente e papel de fornecedor (19 tabelas)
+- [x] Branches obsoletas, locais e remotas → apagadas; restam `main` e `origin/main`
 
 ## Ramificações abertas
 
 - [ ] Criar o atualizador do ambiente local: um comando que executa todos os procedimentos para deixar o ambiente atualizado (desenvolvimento no LOQ, teste no VAIO)
-- [ ] Limpar as branches obsoletas, locais e remotas, já mergeadas no `main`
 - [ ] Revisar o `npm audit` do backend quando sair uma versão nova do Jest (restam 20 vulnerabilidades moderadas e baixas, só nas ferramentas de teste)
