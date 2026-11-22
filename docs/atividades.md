@@ -162,7 +162,7 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
   - [x] Definir o plano e as decisões (regra em Decisões)
   - [x] Escrever `backend/scripts/atualizar.js` e `atualizar.bat`
   - [x] Documentar no `README.md` da raiz
-  - [ ] Testar no LOQ
+  - [x] Testar no LOQ (45 s, nove passos ok)
   - [ ] Testar no VAIO (instalação limpa e atualização)
   - [ ] Criar a branch `feat/atualizador-ambiente`, o commit e a PR
 - [ ] Revisar o `npm audit` do backend quando sair uma versão nova do Jest (restam 20 vulnerabilidades moderadas e baixas, só nas ferramentas de teste)
