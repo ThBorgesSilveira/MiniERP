@@ -1,20 +1,20 @@
 # MiniERP — Layout e navegação do frontend
 
 Este arquivo define o layout e a navegação do frontend.
-As telas de cada módulo ficam na seção 6 da trilha (`docs/atividades.md`).
+O andamento das telas de cada módulo fica na seção 6 da trilha (`docs/atividades.md`).
 O protótipo clicável está em `docs/prototipos/layout-navegacao.html`.
 
 ## Tecnologia
 
 - Biblioteca de componentes: MUI (Material UI), com os temas da seção "Tema e modo".
 - Roteamento: React Router.
-- Os textos das telas ficam em português. Os nomes de pastas, arquivos e rotas ficam em inglês.
+- Os textos das telas ficam em português e evitam termos técnicos. Os nomes de pastas, arquivos e rotas ficam em inglês.
 
 ## Layout
 
 - O nome do sistema na interface é MAESTRO. Ele aparece na marca da barra lateral, na tela de login e no título da página.
 - Barra lateral fixa à esquerda, com o menu.
-- Barra superior com o caminho da tela (grupo e tela), o nome do usuário e o botão "Sair".
+- Barra superior com o caminho da tela (grupo e tela), o nome do usuário e o botão "Sair". O nome do usuário abre o detalhe do próprio usuário.
 - Faixa de aviso abaixo da barra superior. Ela lista os meses pendentes de fechamento e tem o botão "Fechar o mês", que abre o Fechamento do mês. A faixa some quando não há mês pendente.
 - Área de conteúdo à direita, com rolagem própria.
 - Em telas estreitas, a barra lateral vira uma gaveta, aberta pelo botão de menu.
@@ -24,7 +24,7 @@ O protótipo clicável está em `docs/prototipos/layout-navegacao.html`.
 
 - Nenhuma tela usa cor fixa. Toda cor vem do tema (no MUI, `createTheme`).
 - Temas: Padrão (azul, sem textura) e Fofo (rosa suave, cantos arredondados, fonte Nunito e textura de corações na barra superior).
-- O tema vale para toda a instalação e vem do backend, inclusive na tela de login.
+- O tema vale para toda a instalação e fica no banco. O backend o entrega ao frontend, inclusive na tela de login.
 - Cada tema tem modo claro e modo escuro. O modo é de cada usuário e fica no navegador. O botão da barra superior alterna o modo. No primeiro acesso, o modo segue a preferência do sistema operacional.
 - Os pares de texto e fundo seguem o contraste mínimo de 4,5:1 em todos os temas e modos.
 - A tela Aparência, no grupo Sistema, escolhe o tema. Cada tema aparece em um cartão com uma prévia. Um clique no cartão aplica e salva o tema.
@@ -62,6 +62,25 @@ Vendas e Compras ficam no topo, sem grupo. Os outros itens ficam em quatro grupo
 - As listas de escolha usam um componente próprio, no lugar do seletor nativo do navegador. Ele mostra a opção atual com um visto, abre abaixo do campo (ou acima, quando falta espaço) e funciona pelo teclado: setas, Enter, Esc e a primeira letra da opção.
 - Campos de valor em reais usam máscara pelos centavos: digitar 1234 mostra 12,34, e o ponto de milhar aparece sozinho. O campo seleciona o conteúdo ao receber o foco e alinha o valor à direita. O frete vazio volta a 0,00 ao sair do campo.
 
+## Reaproveitamento e crescimento
+
+Cada módulo novo entra no sistema sem reescrever o que outro módulo já faz.
+
+- Uma pasta por módulo guarda as páginas, os hooks de dados e os tipos do módulo. Uma pasta compartilhada guarda o que mais de um módulo usa.
+- Um comportamento que aparece em dois módulos vira componente compartilhado. O módulo só configura o componente.
+- Um módulo novo entra com uma linha no menu, uma rota e as páginas de lista, cadastro e detalhe, montadas com os componentes compartilhados.
+- Os módulos chamam a API por um cliente único. Cada módulo declara as suas chamadas e os seus tipos.
+- A lista usa paginação, busca e filtros no backend. A tela envia a página, o texto da busca e os filtros, e recebe os registros da página e o total.
+
+### Componentes compartilhados
+
+- Página de lista: aplica o padrão da tela de lista. O módulo informa as colunas, os filtros e a fonte dos dados.
+- Página de detalhe: aplica o padrão da tela de detalhe, com botão de voltar e título.
+- Campo de formulário: rótulo, entrada e mensagem de erro.
+- Campos especiais: lista de escolha própria, valor em reais e senha.
+- Barra de ações do formulário: Cancelar e Salvar.
+- Diálogo de confirmação, Snackbar e chip de status, nos padrões de "Padrão das telas".
+
 ## Módulo Vendas
 
 ### Rotas
@@ -84,7 +103,7 @@ Vendas e Compras ficam no topo, sem grupo. Os outros itens ficam em quatro grupo
 - Pedido: canal e botão "Recalcular preços" no topo. Cada item tem quantidade, preço editável, subtotal e botão remover. Os materiais ficam em uma seção recolhível, fechada ao abrir a tela. O cabeçalho é um botão com borda, contador de materiais, ação ("Adicionar", "Editar" ou "Recolher") e seta que gira. Fechada, a seção mostra abaixo do título os materiais do pedido com a quantidade. Aberta, ela tem uma busca por qualquer parte do nome e uma lista com rolagem, com uma caixa de marcação por material. A linha inteira é a área de clique, e a linha marcada ganha fundo colorido. Marcar inclui o material com quantidade 1 e mostra os botões de quantidade. Desmarcar remove o material.
 - Totais: valor da venda, custo estimado, taxas estimadas e resultado parcial.
 - Rodapé do pedido: cliente, frete cobrado do cliente e data. O cliente é obrigatório só para efetivar. O campo Cliente é digitável: a lista filtra por qualquer parte do nome, sem diferenciar acentos nem maiúsculas. Enter escolhe o cliente destacado. Sem resultado, Enter abre o cadastro com o texto digitado. O botão "Novo cliente" fica ao lado do campo.
-- A troca de canal não altera os preços dos itens. O botão "Recalcular preços" copia a tabela do canal e recusa a operação se algum item não tem preço nele.
+- A troca de canal e o botão "Recalcular preços" seguem a regra de preços dos itens da venda em `docs/modelo-de-dados.md`.
 - Uma etiqueta ao lado do título mostra o estado: "Ainda não salvo", "Alterações não salvas" ou "Salvo".
 
 ### Botões do rascunho
@@ -109,7 +128,7 @@ Vendas e Compras ficam no topo, sem grupo. Os outros itens ficam em quatro grupo
 Os botões "Novo cliente" e "Novo produto" abrem um popup sobre a tela do rascunho. O pedido não perde nenhum dado. Os campos seguem os formulários dos módulos Pessoas e Produtos.
 
 - Novo cliente: nome (obrigatório) e papéis (Cliente já marcado, Fornecedor opcional). Ao salvar, o cliente fica selecionado no pedido. O fornecedor com nome repetido é recusado.
-- Novo produto: nome, tipo, composto (só para mercadoria), categoria opcional e unidade-base. O preço de venda vale para o canal do pedido. O saldo inicial pede quantidade e custo unitário, e o sistema o grava como ajuste de entrada com o motivo "Saldo inicial".
+- Novo produto: nome, tipo, composto (só para mercadoria), categoria opcional e unidade-base. O preço de venda vale para o canal do pedido. O saldo inicial pede quantidade e custo unitário (operação "Criar com preço e saldo inicial" em `docs/modulos-do-backend.md`).
 - Material não tem preço. Produto composto não tem saldo inicial.
 - Ao salvar o produto simples, ele entra no pedido. O material entra na lista de materiais. O produto composto abre o diálogo "Montar o kit".
 - Na lista de produtos sem resultado, o botão "Cadastrar produto" traz o texto da busca no nome.
@@ -127,7 +146,67 @@ Os botões "Novo cliente" e "Novo produto" abrem um popup sobre a tela do rascun
 - O botão "Voltar para as vendas" fica à esquerda do título e abre a lista de vendas.
 - Venda efetivada: botão "Devolver venda". Venda devolvida: aviso com a data da devolução.
 
+## Módulo Usuários
+
+### Rotas
+
+- `/login`: tela de login.
+- `/users`: lista de usuários.
+- `/users/new`: cadastro do usuário.
+- `/users/:id`: detalhe e edição do usuário.
+
+### Login
+
+- Cartão centralizado, com a marca MAESTRO, os campos Login e Senha e o botão Entrar. O tema vem do backend.
+- O foco inicia no campo Login. Enter envia o formulário.
+- O login não diferencia maiúsculas de minúsculas.
+- Uma só mensagem cobre a senha errada, o login inexistente e o usuário inativo: "Login ou senha inválidos." Campo vazio mostra "Informe o login e a senha."
+- Depois de entrar, o sistema abre `/sales`. O botão "Sair" da barra superior leva ao login.
+
+### Lista
+
+- Busca por nome ou login. Filtro de situação.
+- Colunas: nome, login e situação (chip verde "Ativo" e chip cinza "Inativo").
+- A linha abre o detalhe. O botão "Novo usuário" abre o cadastro.
+
+### Cadastro
+
+- Campos: nome, login, senha e confirmação da senha. A senha tem no mínimo 8 caracteres.
+- Os erros aparecem sob o campo: "Informe o nome.", "Informe o login.", "Esse login já existe.", "A senha precisa de no mínimo 8 caracteres." e "As senhas não coincidem."
+- Ao criar, o sistema volta à lista e mostra o aviso "Usuário criado".
+
+### Detalhe
+
+- Cabeçalho: botão "Voltar para os usuários", nome, chip da situação e as ações.
+- O formulário tem o nome e o login editáveis e o botão "Salvar". As validações são as do cadastro.
+- "Desativar" e "Ativar" agem na hora, com aviso em Snackbar. "Excluir" abre um diálogo de confirmação.
+- No próprio usuário, "Desativar" e "Excluir" ficam desabilitados, com um aviso abaixo do cabeçalho.
+- "Trocar senha" aparece só no próprio usuário. O diálogo pede a senha atual, a nova senha e a confirmação. Os erros são "A senha atual está incorreta.", "A nova senha precisa de no mínimo 8 caracteres." e "As senhas não coincidem."
+
+## Módulo Auditoria
+
+A Auditoria segue um fluxo em quatro níveis. Cada nível abre o seguinte.
+
+1. Tabelas: lista das tabelas que têm entradas no log.
+2. Registros: lista dos registros da tabela que têm alteração ou exclusão no log.
+3. Alterações: lista das datas das alterações do registro, da mais recente para a mais antiga.
+4. Conteúdo: a versão anterior do registro na alteração escolhida.
+
+### Regras
+
+- A Auditoria é somente leitura.
+- A tabela e o campo aparecem pela descrição do dicionário dos campos. Sem descrição, aparece o nome técnico.
+- O nível "Registros" mostra só o número do registro.
+- A ação aparece como "Alteração" ou "Exclusão".
+
+### Conteúdo da alteração
+
+- Dados da entrada: tabela, registro, ação, data e usuário.
+- A versão anterior do registro (JSON) aparece em uma tabela com as colunas "Campo" e "Valor".
+- A coluna "Valor" mostra o conteúdo como texto, sem formatação. O valor vazio aparece em branco.
+- O campo de chave estrangeira mostra o número do registro.
+
 ## Acesso
 
 - As rotas ficam protegidas pelo token JWT. O token vencido leva à rota `/login`.
-- A tela de login faz parte dos itens de "Telas" do módulo Usuários.
+- A tela de login fica na seção "Módulo Usuários".

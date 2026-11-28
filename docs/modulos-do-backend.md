@@ -13,7 +13,7 @@ Tabela: `users`.
 - Criar.
 - Listar.
 - Buscar um.
-- Editar o nome.
+- Editar o nome e o login.
 - Trocar a senha.
 - Ativar ou desativar.
 - Excluir.
@@ -36,7 +36,10 @@ Tabela: `audit_logs`. Triggers no banco gravam o log e preenchem os campos de au
 
 - Listar o log, com filtros por tabela, registro, usuário, ação e período.
 - Buscar uma entrada.
+- Listar as tabelas que têm entradas no log.
+- Listar os registros alterados de uma tabela.
 - Consultar o histórico de um registro, por tabela e id.
+- Consultar o dicionário dos campos: devolve a descrição de cada campo, por tabela.
 
 O log é só de leitura. A API não cria, edita nem exclui entradas.
 
@@ -252,7 +255,7 @@ O módulo tem três partes: o rascunho, a efetivação e a devolução. Este arq
 
 - Conferir o estoque do rascunho. A operação só consulta e mostra, por produto, a quantidade necessária e o saldo.
 - Efetivar a venda.
-- Criar e efetivar a venda. A operação recebe os mesmos dados da criação do rascunho e usa uma única transação. Se falhar, o sistema não grava nada.
+- Criar e efetivar a venda. A operação recebe os mesmos dados da criação do rascunho e usa uma única transação.
 
 A efetivação grava os movimentos, os custos reais, as taxas e o status, como o modelo define. Os serviços do módulo Estoque fazem os movimentos e o consumo dos lotes.
 

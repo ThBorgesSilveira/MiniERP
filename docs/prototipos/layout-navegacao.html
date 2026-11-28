@@ -351,6 +351,21 @@ mark { background: var(--mark); color: inherit; padding: 0; }
 .login-card p { margin: 0; color: var(--muted); }
 .login-card .btn { width: 100%; padding: 10px; }
 
+/* Auditoria */
+.audit-val { white-space: normal; word-break: break-word; }
+
+/* Usuários */
+.user-form { max-width: 640px; display: flex; flex-direction: column; gap: 16px; }
+.user-form .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+a.user { color: inherit; text-decoration: none; padding: 4px 8px; border-radius: 6px; }
+a.user:hover { background: rgba(255,255,255,.15); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn:disabled:hover { background: var(--primary); }
+.btn.outlined:disabled:hover, .btn.danger:disabled:hover { background: transparent; }
+.login-card .err { font-size: 13px; }
+.login-card .err:empty { display: none; }
+@media (max-width: 560px) { .user-form .form-grid { grid-template-columns: 1fr; } }
+
 /* Snackbar */
 .snackbar { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--snack); color: #fff; padding: 12px 20px; border-radius: var(--r-ctl); max-width: calc(100% - 32px); box-shadow: 0 4px 12px rgba(0,0,0,.3); z-index: 50; }
 .scrim { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 19; }
@@ -382,8 +397,9 @@ mark { background: var(--mark); color: inherit; padding: 0; }
     <p>Entre com o seu login e a sua senha.</p>
     <div class="field"><label for="login-user">Login</label><input id="login-user" value="thiago" autocomplete="off"></div>
     <div class="field"><label for="login-pass">Senha</label><input id="login-pass" type="password" value="12345678" autocomplete="off"></div>
+    <div class="err" id="login-err" role="alert"></div>
     <button class="btn" type="submit">Entrar</button>
-    <p style="font-size:12px">Protótipo com dados fictícios. Qualquer valor entra.</p>
+    <p style="font-size:12px">Protótipo com dados fictícios. Entre com thiago ou operadora e a senha 12345678. O usuário camila está inativo.</p>
   </form>
 </div>
 
@@ -401,7 +417,7 @@ mark { background: var(--mark); color: inherit; padding: 0; }
       <span class="spacer"></span>
       <span class="proto-tag">Protótipo</span>
       <button class="btn-text" id="mode-btn" type="button"></button>
-      <div class="user"><span class="avatar">T</span><span class="name">Thiago</span></div>
+      <a class="user" id="me" href="#user-1" title="Abrir o meu usuário"><span class="avatar">T</span><span class="name">Thiago</span></a>
       <button class="btn-text" id="logout">Sair</button>
     </header>
     <div class="notice" id="notice" role="status"></div>
@@ -431,7 +447,8 @@ mark { background: var(--mark); color: inherit; padding: 0; }
   var statusClass = {
     'Efetivada': 'ok', 'Recebida': 'ok', 'Ativo': 'ok', 'Fechado': 'ok', 'Sim': 'ok', 'Em uso': 'ok',
     'Pedida': 'info', 'Devolvida': 'warn', 'Pendente': 'warn',
-    'Rascunho': '', 'Inativo': '', 'Não': ''
+    'Rascunho': '', 'Inativo': '', 'Não': '',
+    'Alteração': 'info', 'Exclusão': 'warn'
   };
   function chip(text) { return '<span class="chip ' + (statusClass[text] || '') + '">' + text + '</span>'; }
 
@@ -541,6 +558,71 @@ mark { background: var(--mark); color: inherit; padding: 0; }
   var nextBatch = 319;
   var nextProd = 100;
   var nextId = 1045;
+  var users = [
+    { id: 1, name: 'Thiago', login: 'thiago', active: true, pass: '12345678' },
+    { id: 2, name: 'Operadora', login: 'operadora', active: true, pass: '12345678' },
+    { id: 3, name: 'Camila Rocha', login: 'camila', active: false, pass: '12345678' }
+  ];
+  var nextUser = 4;
+  var currentUser = users[0];
+
+  /* Dicionário dos campos: as descrições da tabela field_dictionary */
+  var dictTables = {
+    users: 'Usuários do sistema.',
+    people: 'Clientes e fornecedores.',
+    products: 'Mercadorias e materiais, simples ou compostos.',
+    sales_channels: 'Canais de venda e suas taxas.',
+    list_items: 'Itens das listas de valores mantidas pelo usuário.',
+    product_units: 'Unidades de compra de cada produto, além da unidade-base.',
+    product_prices: 'Preço de cada produto em cada canal.',
+    expenses: 'Despesas recorrentes e pontuais.',
+    sales: 'Vendas aos clientes.',
+    purchases: 'Compras de fornecedores e devoluções de vendas.'
+  };
+  var dictCommon = {
+    id: 'Identificador do registro.',
+    created_at: 'Data e hora da criação.', created_by: 'Usuário que criou o registro.',
+    updated_at: 'Data e hora da última alteração.', updated_by: 'Usuário da última alteração.',
+    deleted_at: 'Data e hora da exclusão.', deleted_by: 'Usuário que excluiu o registro.'
+  };
+  var dictFields = {
+    users: { name: 'Nome do usuário.', login: 'Login de acesso.', is_active: 'Indica se o usuário está ativo.', password_changed: 'A senha foi alterada nesta mudança.' },
+    people: { name: 'Nome da pessoa.', is_customer: 'Indica se a pessoa é cliente.', is_supplier: 'Indica se a pessoa é fornecedora.' },
+    product_prices: { product_id: 'Produto do preço.', sales_channel_id: 'Canal do preço.', price: 'Preço unitário de venda.' },
+    expenses: { description: 'Descrição da despesa.', monthly_amount: 'Valor mensal da despesa.', valid_from: 'Início da vigência.', valid_to: 'Fim da vigência.' },
+    sales: { customer_id: 'Cliente da venda.', sales_channel_id: 'Canal da venda.', sale_date: 'Data da venda.', status: 'Situação da venda.', customer_freight: 'Frete cobrado do cliente.', expense_share: 'Rateio das despesas do mês, em reais.', commission_amount: 'Valor da comissão do canal.', order_fee_amount: 'Valor da tarifa fixa do canal.' }
+  };
+  function tableLabel(t) { return dictTables[t] || t; }
+  function fieldLabel(t, k) { return (dictFields[t] && dictFields[t][k]) || dictCommon[k] || k; }
+
+  /* Log de auditoria: cada entrada guarda a versão anterior do registro */
+  function auditRec(id, f, cAt, cBy, uAt, uBy) {
+    var r = { id: id };
+    Object.keys(f).forEach(function (k) { r[k] = f[k]; });
+    r.created_at = cAt; r.created_by = cBy; r.updated_at = uAt; r.updated_by = uBy; r.deleted_at = null; r.deleted_by = null;
+    return r;
+  }
+  var auditLog = [
+    { id: 1, date: '05/11/2026 09:15', table: 'people', rec: 5, action: 'update', user: 'Thiago',
+      data: auditRec(5, { name: 'Maria Souza', is_customer: true, is_supplier: false }, '2026-09-02T14:10:05-03:00', 1, '2026-09-02T14:10:05-03:00', 1) },
+    { id: 2, date: '10/11/2026 14:50', table: 'expenses', rec: 3, action: 'update', user: 'Thiago',
+      data: auditRec(3, { description: 'Contador', monthly_amount: '400.000000', valid_from: '2026-01-01', valid_to: null }, '2026-01-05T09:00:00-03:00', 1, '2026-01-05T09:00:00-03:00', 1) },
+    { id: 3, date: '13/11/2026 11:20', table: 'product_prices', rec: 12, action: 'update', user: 'Operadora',
+      data: auditRec(12, { product_id: 3, sales_channel_id: 1, price: '17.500000' }, '2026-09-10T10:00:00-03:00', 1, '2026-09-10T10:00:00-03:00', 1) },
+    { id: 4, date: '18/11/2026 11:02', table: 'sales', rec: 1043, action: 'update', user: 'Operadora',
+      data: auditRec(1043, { customer_id: 7, sales_channel_id: 2, sale_date: '2026-11-18', status: 'rascunho', customer_freight: '0.000000', expense_share: null, commission_amount: null, order_fee_amount: null }, '2026-11-18T10:40:12-03:00', 2, '2026-11-18T10:40:12-03:00', 2) },
+    { id: 5, date: '19/11/2026 16:20', table: 'users', rec: 2, action: 'update', user: 'Thiago',
+      data: (function () { var r = auditRec(2, { name: 'Operadora', login: 'operadora', is_active: true }, '2026-08-28T09:00:00-03:00', 1, '2026-08-28T09:00:00-03:00', 1); r.password_changed = true; return r; })() },
+    { id: 6, date: '20/11/2026 17:45', table: 'expenses', rec: 3, action: 'delete', user: 'Operadora',
+      data: auditRec(3, { description: 'Contador', monthly_amount: '450.000000', valid_from: '2026-01-01', valid_to: null }, '2026-01-05T09:00:00-03:00', 1, '2026-11-10T14:50:31-03:00', 1) },
+    { id: 7, date: '21/11/2026 09:10', table: 'product_prices', rec: 12, action: 'update', user: 'Thiago',
+      data: auditRec(12, { product_id: 3, sales_channel_id: 1, price: '18.900000' }, '2026-09-10T10:00:00-03:00', 1, '2026-11-13T11:20:44-03:00', 2) },
+    { id: 8, date: '22/11/2026 14:32', table: 'sales', rec: 1043, action: 'update', user: 'Thiago',
+      data: auditRec(1043, { customer_id: 7, sales_channel_id: 2, sale_date: '2026-11-18', status: 'rascunho', customer_freight: '12.500000', expense_share: null, commission_amount: null, order_fee_amount: null }, '2026-11-18T10:40:12-03:00', 2, '2026-11-18T11:02:37-03:00', 2) },
+    { id: 9, date: '22/11/2026 17:10', table: 'users', rec: 3, action: 'update', user: 'Thiago',
+      data: auditRec(3, { name: 'Camila Rocha', login: 'camila', is_active: true }, '2026-09-15T10:00:00-03:00', 1, '2026-09-15T10:00:00-03:00', 1) }
+  ];
+  var actionLabel = { update: 'Alteração', 'delete': 'Exclusão' };
   var sales = [
     { id: 1044, date: '22/11/2026', cust: '', ch: 'Marketplace A', status: 'Rascunho', freight: 0,
       items: [{ pid: 5, q: 6, pr: 6.2 }], mats: [] },
@@ -715,24 +797,19 @@ mark { background: var(--mark); color: inherit; padding: 0; }
       ]
     },
     users: {
-      title: 'Usuários', action: { label: 'Novo usuário', msg: 'O formulário do usuário entra no item "Telas" do módulo Usuários.' },
-      search: 'Nome', searchKey: 'name', filters: [{ key: 'active', label: 'Situação', options: ['Ativo', 'Inativo'] }],
+      title: 'Usuários', action: { label: 'Novo usuário', href: '#new-user' },
+      search: 'Nome ou login', searchKey: 'q', filters: [{ key: 'active', label: 'Situação', options: ['Ativo', 'Inativo'] }],
       columns: [{ k: 'name', l: 'Nome' }, { k: 'login', l: 'Login' }, { k: 'active', l: 'Situação', t: 'chip' }],
-      rows: [{ name: 'Thiago', login: 'thiago', active: 'Ativo' }, { name: 'Operadora', login: 'operadora', active: 'Ativo' }]
+      rows: []
     },
-    audit: {
-      title: 'Auditoria', search: 'Tabela', searchKey: 'table',
-      filters: [{ key: 'action', label: 'Ação', options: ['update', 'delete'] }],
-      columns: [{ k: 'date', l: 'Data' }, { k: 'table', l: 'Tabela' }, { k: 'rec', l: 'Registro', a: 'num' }, { k: 'action', l: 'Ação' }, { k: 'user', l: 'Usuário' }],
-      rows: [
-        { date: '22/11/2026 14:32', table: 'sales', rec: '1043', action: 'update', user: 'Thiago' },
-        { date: '21/11/2026 09:10', table: 'product_prices', rec: '12', action: 'update', user: 'Thiago' },
-        { date: '20/11/2026 17:45', table: 'expenses', rec: '3', action: 'delete', user: 'Operadora' }
-      ]
-    }
   };
 
   var builders = {
+    users: function () {
+      return users.map(function (u) {
+        return { name: esc(u.name), login: esc(u.login), active: u.active ? 'Ativo' : 'Inativo', q: u.name + ' ' + u.login, href: '#user-' + u.id };
+      });
+    },
     'stock-balance': function () {
       return products.filter(function (p) { return p.kind !== 'kit'; }).map(function (p) {
         return { name: p.name, type: p.kind === 'material' ? 'Material' : 'Mercadoria', cat: p.cat || (p.kind === 'material' ? 'Embalagens' : '—'), bal: String(p.stock), unit: p.unit || 'un' };
@@ -1544,6 +1621,176 @@ mark { background: var(--mark); color: inherit; padding: 0; }
        } }]);
   }
 
+  /* ---------- Usuários ---------- */
+  function userById(id) { for (var i = 0; i < users.length; i++) if (String(users[i].id) === String(id)) return users[i]; return null; }
+  /* O login é único sem diferenciar maiúsculas de minúsculas (citext) */
+  function loginTaken(login, exceptId) {
+    return users.some(function (u) { return u.id !== exceptId && u.login.toLowerCase() === login.toLowerCase(); });
+  }
+  function setFieldError(fieldId, errId, msg) { $(fieldId).classList.toggle('error', !!msg); $(errId).textContent = msg; }
+  function userFieldsHtml(p, u) {
+    return '<div class="field" id="' + p + '-nf"><label for="' + p + '-name">Nome</label><input id="' + p + '-name" autocomplete="off" value="' + esc(u ? u.name : '') + '"><span class="err" id="' + p + '-nerr"></span></div>' +
+      '<div class="field" id="' + p + '-lf"><label for="' + p + '-login">Login</label><input id="' + p + '-login" autocomplete="off" value="' + esc(u ? u.login : '') + '"><span class="err" id="' + p + '-lerr"></span></div>';
+  }
+  function checkNameLogin(p, exceptId) {
+    var name = $(p + '-name').value.trim(), login = $(p + '-login').value.trim();
+    var ne = name ? '' : 'Informe o nome.';
+    var le = !login ? 'Informe o login.' : (loginTaken(login, exceptId) ? 'Esse login já existe.' : '');
+    setFieldError(p + '-nf', p + '-nerr', ne);
+    setFieldError(p + '-lf', p + '-lerr', le);
+    if (ne) { $(p + '-name').focus(); return false; }
+    if (le) { $(p + '-login').focus(); return false; }
+    return true;
+  }
+  function renderUser() {
+    var me = $('me');
+    me.setAttribute('href', '#user-' + currentUser.id);
+    me.querySelector('.avatar').textContent = currentUser.name.charAt(0).toUpperCase();
+    me.querySelector('.name').textContent = currentUser.name;
+  }
+
+  function viewNewUser() {
+    $('view').innerHTML = '<div class="page-head"><a class="btn outlined" href="#users">← Voltar para os usuários</a><h1>Novo usuário</h1></div>' +
+      '<form class="card pad user-form" id="nu-form" novalidate><div class="form-grid">' + userFieldsHtml('nu', null) +
+      '<div class="field" id="nu-pf"><label for="nu-pass">Senha</label><input id="nu-pass" type="password" autocomplete="new-password"><span class="err" id="nu-perr"></span></div>' +
+      '<div class="field" id="nu-cf"><label for="nu-conf">Confirmar a senha</label><input id="nu-conf" type="password" autocomplete="new-password"><span class="err" id="nu-cerr"></span></div></div>' +
+      '<p class="muted" style="margin:0">A senha tem no mínimo 8 caracteres.</p>' +
+      '<div class="actions"><a class="btn outlined" href="#users">Cancelar</a><button class="btn" type="submit">Criar usuário</button></div></form>';
+    $('nu-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var okName = checkNameLogin('nu');
+      var pass = $('nu-pass').value, conf = $('nu-conf').value;
+      var pe = pass.length >= 8 ? '' : 'A senha precisa de no mínimo 8 caracteres.';
+      var ce = !pe && pass !== conf ? 'As senhas não coincidem.' : '';
+      setFieldError('nu-pf', 'nu-perr', pe);
+      setFieldError('nu-cf', 'nu-cerr', ce);
+      if (!okName) return;
+      if (pe) { $('nu-pass').focus(); return; }
+      if (ce) { $('nu-conf').focus(); return; }
+      var u = { id: nextUser++, name: $('nu-name').value.trim(), login: $('nu-login').value.trim(), active: true, pass: pass };
+      users.push(u);
+      snack('Usuário criado: ' + u.name + '.');
+      go('users');
+    });
+    $('nu-name').focus();
+  }
+
+  function viewUserDetail(id) {
+    var u = userById(id);
+    if (!u) { go('users'); return; }
+    var self = u.id === currentUser.id;
+    var lock = self ? 'Você não pode desativar nem excluir o seu próprio usuário.' : '';
+    var html = '<div class="page-head"><a class="btn outlined" href="#users">← Voltar para os usuários</a><h1>' + esc(u.name) + '</h1>' + chip(u.active ? 'Ativo' : 'Inativo') + '<span class="spacer"></span>' +
+      (self ? '<button class="btn outlined" type="button" id="ud-pass">Trocar senha</button>' : '') +
+      '<button class="btn outlined" type="button" id="ud-toggle"' + (u.active && lock ? ' disabled' : '') + '>' + (u.active ? 'Desativar' : 'Ativar') + '</button>' +
+      '<button class="btn danger" type="button" id="ud-del"' + (lock ? ' disabled' : '') + '>Excluir</button></div>';
+    if (lock) html += '<div class="alert">' + lock + '</div>';
+    html += '<form class="card pad user-form" id="ud-form" novalidate><h2>Dados do usuário</h2><div class="form-grid">' + userFieldsHtml('ud', u) + '</div>' +
+      '<div class="actions"><button class="btn" type="submit">Salvar</button></div></form>';
+    $('view').innerHTML = html;
+    $('ud-form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!checkNameLogin('ud', u.id)) return;
+      u.name = $('ud-name').value.trim(); u.login = $('ud-login').value.trim();
+      snack('Usuário salvo.');
+      route();
+    });
+    $('ud-toggle').addEventListener('click', function () {
+      u.active = !u.active;
+      snack(u.active ? 'Usuário ativado.' : 'Usuário desativado.');
+      route();
+    });
+    if ($('ud-pass')) $('ud-pass').addEventListener('click', function () { openPassword(u); });
+    $('ud-del').addEventListener('click', function () { confirmDeleteUser(u); });
+  }
+
+  function openPassword(u) {
+    dialog('Trocar a senha',
+      '<div class="field" id="pw-af"><label for="pw-cur">Senha atual</label><input id="pw-cur" type="password" autocomplete="current-password"><span class="err" id="pw-aerr"></span></div>' +
+      '<div class="field" id="pw-nf"><label for="pw-new">Nova senha</label><input id="pw-new" type="password" autocomplete="new-password"><span class="err" id="pw-nerr"></span></div>' +
+      '<div class="field" id="pw-cf"><label for="pw-conf">Confirmar a nova senha</label><input id="pw-conf" type="password" autocomplete="new-password"><span class="err" id="pw-cerr"></span></div>',
+      [{ label: 'Cancelar', cls: 'outlined' },
+       { label: 'Trocar senha', fn: function () {
+         var cur = $('pw-cur').value, nw = $('pw-new').value, cf = $('pw-conf').value;
+         var ae = cur === u.pass ? '' : 'A senha atual está incorreta.';
+         var ne = nw.length >= 8 ? '' : 'A nova senha precisa de no mínimo 8 caracteres.';
+         var ce = !ne && nw !== cf ? 'As senhas não coincidem.' : '';
+         setFieldError('pw-af', 'pw-aerr', ae);
+         setFieldError('pw-nf', 'pw-nerr', ne);
+         setFieldError('pw-cf', 'pw-cerr', ce);
+         if (ae || ne || ce) { $(ae ? 'pw-cur' : (ne ? 'pw-new' : 'pw-conf')).focus(); return false; }
+         u.pass = nw;
+         snack('Senha alterada.');
+       } }]);
+    $('pw-cur').focus();
+  }
+
+  function confirmDeleteUser(u) {
+    dialog('Excluir o usuário ' + esc(u.name) + '?', '<p>O usuário deixa de entrar no sistema.</p>', [
+      { label: 'Cancelar', cls: 'outlined' },
+      { label: 'Excluir', cls: 'danger', fn: function () {
+        users = users.filter(function (x) { return x.id !== u.id; });
+        snack('Usuário excluído.'); go('users');
+      } }
+    ]);
+  }
+
+  /* ---------- Auditoria ---------- */
+  function auditBy(f) { return auditLog.filter(f).sort(function (x, y) { return y.id - x.id; }); }
+  function auditHead(title, backHref, backLabel, extra) {
+    return '<div class="page-head">' + (backHref ? '<a class="btn outlined" href="' + backHref + '">← ' + backLabel + '</a>' : '') + '<h1>' + title + '</h1>' + (extra || '') + '</div>';
+  }
+  function auditTable(head, rows, cols) {
+    return '<div class="card"><div class="table-wrap"><table><thead><tr>' + head + '</tr></thead><tbody>' +
+      (rows.length ? rows.join('') : '<tr><td colspan="' + cols + '"><div class="empty">Nenhum registro encontrado.</div></td></tr>') + '</tbody></table></div></div>';
+  }
+  function viewAudit() {
+    var tables = [];
+    auditLog.forEach(function (e) { if (tables.indexOf(e.table) < 0) tables.push(e.table); });
+    var rows = tables.map(function (t) {
+      return '<tr class="clickable" tabindex="0" data-href="#audit-t-' + t + '"><td>' + esc(tableLabel(t)) + '</td></tr>';
+    });
+    $('view').innerHTML = auditHead('Auditoria') + auditTable('<th>Tabela</th>', rows, 1);
+  }
+  function viewAuditRecords(t) {
+    var recs = [];
+    auditLog.forEach(function (e) { if (e.table === t && recs.indexOf(e.rec) < 0) recs.push(e.rec); });
+    if (!recs.length) { go('audit'); return; }
+    recs.sort(function (x, y) { return x - y; });
+    var rows = recs.map(function (r) {
+      return '<tr class="clickable" tabindex="0" data-href="#audit-r-' + t + '-' + r + '"><td class="num">' + r + '</td></tr>';
+    });
+    $('view').innerHTML = auditHead(esc(tableLabel(t)), '#audit', 'Voltar para as tabelas') +
+      auditTable('<th class="num">Registro</th>', rows, 1);
+  }
+  function viewAuditChanges(t, r) {
+    var l = auditBy(function (e) { return e.table === t && String(e.rec) === r; });
+    if (!l.length) { go('audit-t-' + t); return; }
+    var rows = l.map(function (e) {
+      return '<tr class="clickable" tabindex="0" data-href="#audit-' + e.id + '"><td>' + e.date + '</td><td>' + chip(actionLabel[e.action]) + '</td><td>' + esc(e.user) + '</td></tr>';
+    });
+    $('view').innerHTML = auditHead('Registro ' + r, '#audit-t-' + t, 'Voltar para os registros', '<span class="sub-title">' + esc(tableLabel(t)) + '</span>') +
+      auditTable('<th>Data</th><th>Ação</th><th>Usuário</th>', rows, 3);
+  }
+  function viewAuditDetail(id) {
+    var e = null;
+    auditLog.forEach(function (x) { if (String(x.id) === id) e = x; });
+    if (!e) { go('audit'); return; }
+    var html = auditHead('Alteração de ' + e.date, '#audit-r-' + e.table + '-' + e.rec, 'Voltar para as alterações', chip(actionLabel[e.action])) +
+      '<div class="card pad"><div class="kv">' +
+      '<div><div class="k">Tabela</div><div class="v">' + esc(tableLabel(e.table)) + '</div></div>' +
+      '<div><div class="k">Registro</div><div class="v">' + e.rec + '</div></div>' +
+      '<div><div class="k">Ação</div><div class="v">' + actionLabel[e.action] + '</div></div>' +
+      '<div><div class="k">Data</div><div class="v">' + e.date + '</div></div>' +
+      '<div><div class="k">Usuário</div><div class="v">' + esc(e.user) + '</div></div></div></div>' +
+      '<div class="card"><div class="pad" style="padding-bottom:0"><h2>Versão anterior do registro</h2></div><div class="table-wrap"><table><thead><tr><th>Campo</th><th>Valor</th></tr></thead><tbody>' +
+      Object.keys(e.data).map(function (k) {
+        var v = e.data[k];
+        return '<tr><td>' + esc(fieldLabel(e.table, k)) + '</td><td class="audit-val">' + esc(v === null ? '' : String(v)) + '</td></tr>';
+      }).join('') + '</tbody></table></div></div>';
+    $('view').innerHTML = html;
+  }
+
   /* ---------- Fechamento e DRE ---------- */
   function pendingMonths() { return months.filter(function (m) { return !m.closed; }); }
 
@@ -1622,7 +1869,7 @@ mark { background: var(--mark); color: inherit; padding: 0; }
     });
   }
   var views = {
-    sales: viewSales, 'new-sale': viewNewSale, closing: viewClosing, 'reports-dre': viewDre, appearance: viewAppearance
+    sales: viewSales, 'new-sale': viewNewSale, 'new-user': viewNewUser, closing: viewClosing, 'reports-dre': viewDre, appearance: viewAppearance
   };
   var extraLocate = { 'new-sale': { group: null, label: 'Vendas', child: 'Nova venda' } };
 
@@ -1661,14 +1908,29 @@ mark { background: var(--mark); color: inherit; padding: 0; }
     if (suppressRoute) { suppressRoute = false; return; }
     var h = (location.hash || '').replace('#', '') || 'sales';
     if (guardLeave(h)) return;
-    if (h === 'login') { $('app').classList.add('hidden'); $('login').classList.remove('hidden'); document.title = 'MAESTRO Layout e Navegação'; return; }
+    var query = '', qi = h.indexOf('?');
+    if (qi >= 0) { query = h.slice(qi + 1); h = h.slice(0, qi); }
+    if (h === 'login') {
+      $('app').classList.add('hidden'); $('login').classList.remove('hidden'); document.title = 'MAESTRO Layout e Navegação';
+      $('login-err').textContent = ''; $('login-user').focus();
+      return;
+    }
     $('login').classList.add('hidden');
     $('app').classList.remove('hidden');
     closeDrawer();
+    renderUser();
 
     var navId = h, child = null;
     if (h.indexOf('sale-') === 0) { navId = 'sales'; child = 'Venda #' + h.slice(5); viewSaleDetail(h.slice(5)); }
     else if (h === 'new-sale') { navId = 'sales'; views['new-sale'](); }
+    else if (h === 'new-user') { navId = 'users'; child = 'Novo usuário'; views['new-user'](); }
+    else if (h.indexOf('user-') === 0) { navId = 'users'; var uu = userById(h.slice(5)); child = uu ? uu.name : null; viewUserDetail(h.slice(5)); }
+    else if (h === 'audit') { viewAudit(); }
+    else if (h.indexOf('audit-t-') === 0) { navId = 'audit'; child = tableLabel(h.slice(8)); viewAuditRecords(h.slice(8)); }
+    else if (h.indexOf('audit-r-') === 0) {
+      navId = 'audit'; var ar = h.slice(8), ai = ar.lastIndexOf('-'); child = 'Registro ' + ar.slice(ai + 1); viewAuditChanges(ar.slice(0, ai), ar.slice(ai + 1));
+    }
+    else if (h.indexOf('audit-') === 0) { navId = 'audit'; child = 'Alteração'; viewAuditDetail(h.slice(6)); }
     else if (views[h]) { views[h](); }
     else if (lists[h]) { if (builders[h]) lists[h].rows = builders[h](); listView(h, lists[h]); }
     else { location.hash = 'sales'; return; }
@@ -1684,7 +1946,20 @@ mark { background: var(--mark); color: inherit; padding: 0; }
   $('menu-btn').addEventListener('click', function () { $('sidebar').classList.add('open'); $('scrim').classList.add('open'); });
   $('scrim').addEventListener('click', closeDrawer);
   $('logout').addEventListener('click', function () { location.hash = 'login'; });
-  $('login-form').addEventListener('submit', function (e) { e.preventDefault(); location.hash = 'sales'; });
+  $('login-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var lg = $('login-user').value.trim(), pw = $('login-pass').value, msg = '', found = null;
+    if (!lg || !pw) msg = 'Informe o login e a senha.';
+    else {
+      users.forEach(function (u) { if (u.login.toLowerCase() === lg.toLowerCase()) found = u; });
+      if (!found || !found.active || found.pass !== pw) msg = 'Login ou senha inválidos.';
+    }
+    $('login-err').textContent = msg;
+    if (msg) { (lg ? $('login-pass') : $('login-user')).focus(); return; }
+    currentUser = found;
+    location.hash = 'sales';
+  });
+  ['login-user', 'login-pass'].forEach(function (id) { $(id).addEventListener('input', function () { $('login-err').textContent = ''; }); });
   $('nav').addEventListener('click', function (e) {
     var b = e.target.closest('[data-group]');
     if (!b) return;

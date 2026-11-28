@@ -11,13 +11,13 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - Backend: NestJS + TypeORM + PostgreSQL (TypeScript).
 - Frontend: React + Vite (TypeScript).
 - Um repositório (monorepo) com as pastas `backend/` e `frontend/`.
-- Branches: `main` estável e uma branch curta por mudança, só com os prefixos `feat/` e `fix/`. A branch `chore/limpeza-dependencias` foi uma exceção, já encerrada.
+- Branches: `main` estável e uma branch curta por mudança, só com os prefixos `feat/` e `fix/`.
 - PostgreSQL: instalação do Windows, `localhost:5432` (sem Docker).
 - Banco `minierp` com dois usuários: `minierp_owner` (dono, roda as migrations) e `minierp_app` (backend, só `SELECT/INSERT/UPDATE/DELETE`). Sem superusuário, sem criar bancos ou usuários, acesso público revogado.
 - Senhas só no `.env`. Nunca no chat nem no Git.
 - Criação do banco, dos usuários e das permissões por script (`npm run db:setup`), sem executar SQL à mão. Motivo: continuar o desenvolvimento em outro PC. Sem Docker.
 - Tabelas por migrations geradas pelo TypeORM (`synchronize` desligado). As migrations rodam com `minierp_owner`.
-- Nomes de tabelas e campos em inglês, com tabelas no plural. As telas ficam em português.
+- Nomes de tabelas e campos em inglês, com tabelas no plural.
 - Regras de negócio: ver `docs/modelo-de-dados.md`.
 - Diagrama do modelo em `docs/minierp-modelo-de-dados.mermaid`. Ele deriva do modelo: atualizar os dois juntos.
 - O planejamento fecha em um commit só de `docs/`, antes da primeira entidade. O código começa depois, em uma branch própria. Motivo: não misturar contextos em um commit grande.
@@ -33,9 +33,7 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - Auditoria no banco: uma função de campos por perfil e duas funções de log (genérica e de `users`), todas na migration `CreateAuditTriggers`. O `db:setup` revoga `UPDATE` e `DELETE` do `minierp_app` em `audit_logs`, `stock_movements` e `batch_movements`, quando as tabelas existem.
 - Dicionário dos campos: uma linha por tabela e uma por campo, com `id` e campos de auditoria. As descrições são curtas, em português, sem valores nem exemplos. A migration `PopulateFieldDictionary` grava as linhas. A migration que cria ou remove uma tabela ou um campo ajusta o dicionário. O `npm run db:check-dictionary` grava a comparação com o banco em `backend/logs/check-dictionary.log`, fora do Git.
 - Atualizador do ambiente local: `atualizar.bat` na raiz chama `backend/scripts/atualizar.js`. Passos: conferir Node, npm e Git; `git pull --ff-only`; conferir o `backend/.env`; `npm ci` no backend e no frontend; login do `minierp_owner` (com `db:setup` se falhar); migrations; dicionário dos campos; compilação das duas partes. O resultado fica em `backend/logs/atualizar.log`, fora do Git.
-- Frontend: biblioteca de componentes MUI, com temas próprios (seção "Tema e modo" de `docs/frontend-layout.md`), e roteamento com React Router. A definição do layout e da navegação fica em `docs/frontend-layout.md`. A tela de login entra nos itens de "Telas" do módulo Usuários.
-- Nome do sistema na interface: MAESTRO (marca da barra lateral, tela de login e título da página).
-- Tema visual: o tema vale para toda a instalação e fica no banco, inclusive na tela de login. O modo claro ou escuro é de cada usuário e fica no navegador.
+- Frontend: componentes, roteamento, nome do sistema, temas, layout e navegação em `docs/frontend-layout.md`.
 
 ## Trilha principal
 
@@ -133,8 +131,8 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - [~] Definir o layout e a navegação (definição em `docs/frontend-layout.md`, protótipo em `docs/prototipos/layout-navegacao.html`; aguardando confirmação)
   - [x] Definir o estilo e os temas (Padrão e Fofo, cada um com modo claro e escuro)
   - [~] Definir as telas de cada módulo, um módulo por vez
-    - [ ] Usuários, com o login
-    - [ ] Auditoria
+    - [x] Usuários, com o login
+    - [x] Auditoria (fluxo em `docs/frontend-layout.md`)
     - [ ] Listas
     - [ ] Canais de venda
     - [ ] Pessoas
@@ -150,6 +148,7 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 
 ### 7. Evoluções futuras
 - [ ] Preço sugerido por fórmula configurável (descrição em `docs/evolucoes.md`)
+- [ ] Recuperação de senha por e-mail (descrição em `docs/evolucoes.md`)
 
 ## Ramificações resolvidas
 
@@ -181,3 +180,5 @@ Legenda: `[x]` concluído · `[ ]` pendente · `[~]` em andamento
 - [ ] Criar a operação "Criar com preço e saldo inicial" no módulo Produtos, usada pelo cadastro rápido de produto da tela de venda (definição em `docs/modulos-do-backend.md`)
 - [ ] Aceitar cliente vazio no rascunho da venda: ajustar `customerId` em `backend/src/sales/sale.entity.ts` e gerar uma migration que remove o `NOT NULL` de `sales.customer_id` (a `CreateTables` já rodou)
 - [ ] Revisar o `npm audit` do backend quando sair uma versão nova do Jest (restam 20 vulnerabilidades moderadas e baixas, só nas ferramentas de teste)
+- [ ] Definir o contrato de listagem das operações Listar (página, busca, filtros e total) para todos os módulos em `docs/modulos-do-backend.md`
+- [ ] Acrescentar ao dicionário dos campos a linha de `password_changed` em `users` (migration nova) e ajustar o `db:check-dictionary` para aceitá-la sem coluna correspondente
